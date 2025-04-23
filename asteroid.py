@@ -7,11 +7,21 @@ import random
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
+        self.is_visible = False
 
     def draw(self, screen):
         pygame.draw.circle(screen, "white", self.position, self.radius, 2)
 
     def update(self, dt):
+        if (
+            self.radius <= self.position.x <= constants.SCREEN_WIDTH - self.radius and
+            self.radius <= self.position.y <= constants.SCREEN_HEIGHT - self.radius
+        ):
+            self.is_visible = True
+
+        if self.is_visible:
+            super().update(dt)
+
         self.position += self.velocity * dt
 
     def split(self):
