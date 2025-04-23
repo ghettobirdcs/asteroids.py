@@ -20,12 +20,14 @@ class Player(CircleShape):
         return [a, b, c]
 
     def draw(self, screen):
+        super().draw(screen)
         pygame.draw.polygon(screen, "white", self.triangle(), 2)  # pyright: ignore
 
     def rotate(self, dt):
         self.rotation += constants.PLAYER_TURN_SPEED * dt
 
     def update(self, dt):
+        super().update(dt)
         self.timer -= dt
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
@@ -34,14 +36,13 @@ class Player(CircleShape):
             self.rotate(dt)
         if keys[pygame.K_w]:
             self.move(dt, True)
-        else:
-            self.move(dt, False)
         if keys[pygame.K_s]:
             self.move(-dt, True)
-        else:
-            self.move(dt, False)
         if keys[pygame.K_SPACE]:
             self.shoot()
+        # Decelerate the player when not pressing 'w' or 's' to move
+        if not keys[pygame.K_w] and not keys[pygame.K_s]:
+            self.move(dt, False)
 
     def move(self, dt, accelerating=False):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)

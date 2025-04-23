@@ -36,6 +36,7 @@ def main():
                 return
 
         screen.fill("black")
+
         updateable.update(dt)
 
         for asteroid in asteroids:
@@ -51,6 +52,7 @@ def main():
 
         for sprite in drawable:
             sprite.draw(screen)
+
         pygame.display.flip()
         dt = clock.tick(60) / 1000
 
