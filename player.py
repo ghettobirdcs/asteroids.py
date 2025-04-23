@@ -20,7 +20,6 @@ class Player(CircleShape):
         return [a, b, c]
 
     def draw(self, screen):
-        super().draw(screen)
         pygame.draw.polygon(screen, "white", self.triangle(), 2)  # pyright: ignore
 
     def rotate(self, dt):
