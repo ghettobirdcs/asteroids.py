@@ -2,6 +2,7 @@ from circleshape import CircleShape
 import constants
 import pygame
 import random
+import math
 
 
 class Asteroid(CircleShape):
@@ -10,13 +11,30 @@ class Asteroid(CircleShape):
         self.is_visible = False
 
     def draw(self, screen):
-        # TODO: Get chunky
-        pygame.draw.circle(screen, "white", self.position, self.radius, 2)
+        num_sides = random.randint(5, 7)
+        angle_step = 2 * math.pi / num_sides
+        points = []
 
-        if self.is_visible:
-            for offset in self.offsets:
-                draw_pos = self.position + offset
-                pygame.draw.circle(screen, "white", draw_pos, self.radius, 2)
+        for i in range(num_sides):
+            angle = i * angle_step
+            x = self.radius * math.cos(angle)
+            y = self.radius * math.sin(angle)
+            points.append((x, y))
+
+        pygame.draw.polygon(screen, "white", points, 2)
+        # if self.is_visible:
+        #     new_points = []
+        #     for offset in self.offsets:
+        #         for point in points:
+        #             new_points.append(point + offset)
+        #         pygame.draw.polygon(screen, "white", new_points, 2)
+
+        # WARN: WORKING CODE (CIRCLES):
+        # pygame.draw.circle(screen, "white", self.position, self.radius, 2)
+        # if self.is_visible:
+        #     for offset in self.offsets:
+        #         draw_pos = self.position + offset
+        #         pygame.draw.circle(screen, "white", draw_pos, self.radius, 2)
 
     def update(self, dt):
         if (
