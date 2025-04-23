@@ -10,6 +10,7 @@ class Asteroid(CircleShape):
         self.is_visible = False
 
     def draw(self, screen):
+        # TODO: Get chunky
         pygame.draw.circle(screen, "white", self.position, self.radius, 2)
 
         if self.is_visible:
