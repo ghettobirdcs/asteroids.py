@@ -8,7 +8,9 @@ class Shot(CircleShape):
         super().__init__(x, y, constants.SHOT_RADIUS)
 
     def draw(self, screen):
-        pygame.draw.circle(screen, "white", self.position, self.radius, 2)
+        for offset in self.offsets:
+            draw_pos = self.position + offset
+            pygame.draw.circle(screen, "white", draw_pos, self.radius, 2)
 
     def update(self, dt):
         super().update(dt)

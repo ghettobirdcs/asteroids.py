@@ -16,6 +16,18 @@ class CircleShape(pygame.sprite.Sprite):
         self.position = pygame.Vector2(x, y)
         self.velocity = pygame.Vector2(0, 0)
         self.radius = radius
+        self.is_visible = True
+        self.offsets = [
+            pygame.Vector2(0, 0),
+            pygame.Vector2(constants.SCREEN_WIDTH, 0),
+            pygame.Vector2(-constants.SCREEN_WIDTH, 0),
+            pygame.Vector2(0, constants.SCREEN_HEIGHT),
+            pygame.Vector2(0, -constants.SCREEN_HEIGHT),
+            pygame.Vector2(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT),
+            pygame.Vector2(-constants.SCREEN_WIDTH, -constants.SCREEN_HEIGHT),
+            pygame.Vector2(constants.SCREEN_WIDTH, -constants.SCREEN_HEIGHT),
+            pygame.Vector2(-constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
+        ]
 
     def draw(self, screen):
         pass

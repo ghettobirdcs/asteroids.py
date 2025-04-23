@@ -11,16 +11,17 @@ class Player(CircleShape):
         self.timer = 0
         self.acceleration = 0
 
-    def triangle(self):
+    def triangle(self, offset):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
-        a = self.position + forward * self.radius  # pyright: ignore
-        b = self.position - forward * self.radius - right  # pyright: ignore
-        c = self.position - forward * self.radius + right  # pyright: ignore
+        a = self.position + forward * self.radius + offset  # pyright: ignore
+        b = self.position - forward * self.radius + offset - right  # pyright: ignore
+        c = self.position - forward * self.radius + offset + right  # pyright: ignore
         return [a, b, c]
 
     def draw(self, screen):
-        pygame.draw.polygon(screen, "white", self.triangle(), 2)  # pyright: ignore
+        for offset in self.offsets:
+            pygame.draw.polygon(screen, "white", self.triangle(offset), 2)  # pyright: ignore
 
     def rotate(self, dt):
         self.rotation += constants.PLAYER_TURN_SPEED * dt

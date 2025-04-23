@@ -12,6 +12,11 @@ class Asteroid(CircleShape):
     def draw(self, screen):
         pygame.draw.circle(screen, "white", self.position, self.radius, 2)
 
+        if self.is_visible:
+            for offset in self.offsets:
+                draw_pos = self.position + offset
+                pygame.draw.circle(screen, "white", draw_pos, self.radius, 2)
+
     def update(self, dt):
         if (
             self.radius <= self.position.x <= constants.SCREEN_WIDTH - self.radius and
