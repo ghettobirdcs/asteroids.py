@@ -31,27 +31,32 @@ class Asteroid(CircleShape):
             for offset in self.offsets:
                 new_points = [(x + offset[0], y + offset[1]) for (x, y) in self.points]
                 pygame.draw.polygon(screen, "white", new_points, 2)
-
-        # WARN: WORKING CODE (CIRCLES):
-        # pygame.draw.circle(screen, "white", self.position, self.radius, 2)
-        # if self.is_visible:
-        #     for offset in self.offsets:
-        #         draw_pos = self.position + offset
-        #         pygame.draw.circle(screen, "white", draw_pos, self.radius, 2)
-
+        
     def update(self, dt):
-        if (
-            self.radius <= self.position.x <= constants.SCREEN_WIDTH - self.radius and
-            self.radius <= self.position.y <= constants.SCREEN_HEIGHT - self.radius
-        ):
-            self.is_visible = True
+        self.is_visible = any(
+            self.radius <= x <= constants.SCREEN_WIDTH - self.radius and self.radius <= y <= constants.SCREEN_HEIGHT - self.radius
+            for (x, y) in self.points
+        )
 
         if self.is_visible:
-            super().update(dt)
+            # Wrap around horizontally and vertically for each vertex
+            for i, (x, y) in enumerate(self.points):
+                if x < 0:
+                    self.points[i] = (x + constants.SCREEN_WIDTH, y)
+                elif x > constants.SCREEN_WIDTH:
+                    self.points[i] = (x - constants.SCREEN_WIDTH, y)
+
+                if y < 0:
+                    self.points[i] = (x, y + constants.SCREEN_HEIGHT)
+                elif y > constants.SCREEN_HEIGHT:
+                    self.points[i] = (x, y - constants.SCREEN_HEIGHT)
+            # Update the position to reflect the average of the wrapped points
+            self.position.x = sum([p[0] for p in self.points]) / len(self.points)
+            self.position.y = sum([p[1] for p in self.points]) / len(self.points)
 
         self.position += self.velocity * dt
         self.points = self.polygon()  # Regenerate points based on updated position
-
+        
     def split(self):
         self.kill()
         if (self.radius <= constants.ASTEROID_MIN_RADIUS):
