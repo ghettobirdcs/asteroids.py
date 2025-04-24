@@ -10,6 +10,7 @@ class Asteroid(CircleShape):
         super().__init__(x, y, radius)
         self.is_visible = False
         self.num_sides = random.randint(5, 7)
+        self.uniform = random.uniform(0.8, 1.2)
         self.points = self.polygon()
 
     def polygon(self, offset=pygame.Vector2(0, 0)):
@@ -17,9 +18,10 @@ class Asteroid(CircleShape):
         points = []
         for i in range(self.num_sides):
             angle = i * angle_step
+            random_radius = self.radius * self.uniform
             # Use Vector2 for all calculations
-            vertex = self.position + pygame.Vector2(math.cos(angle), math.sin(angle)) * self.radius + offset  # pyright: ignore
-            points.append((vertex.x, vertex.y))  # Append as tuple (x, y)
+            vertex = self.position + pygame.Vector2(math.cos(angle), math.sin(angle)) * random_radius + offset  # pyright: ignore
+            points.append((vertex.x, vertex.y))
         return points
 
     def draw(self, screen):
@@ -31,7 +33,7 @@ class Asteroid(CircleShape):
         
     def update(self, dt):
         self.position += self.velocity * dt
-        self.points = self.polygon()
+        self.points = self.polygon(self.velocity * dt)
 
         if not self.is_visible:
             self.is_visible = all(
@@ -42,13 +44,6 @@ class Asteroid(CircleShape):
 
         if self.is_visible:
             super().update(dt)
-            self.points = [
-                (
-                    (point[0] + self.velocity.x * dt) % constants.SCREEN_WIDTH,
-                    (point[1] + self.velocity.y * dt) % constants.SCREEN_HEIGHT
-                )
-                for point in self.points
-            ]
 
     def split(self):
         self.kill()
