@@ -22,7 +22,6 @@ class Asteroid(CircleShape):
             points.append((x, y))  # pyright: ignore
         return points
 
-
     def draw(self, screen):
         pygame.draw.polygon(screen, "white", self.polygon(), 2)
 
@@ -33,24 +32,30 @@ class Asteroid(CircleShape):
         
     def update(self, dt):
         self.position += self.velocity * dt
+        self.points = self.polygon()
 
-        for point in self.points:
-            if 0 <= point[0] <= constants.SCREEN_WIDTH and 0 <= point[1] <= constants.SCREEN_HEIGHT:
-                self.is_visible = True
+        self.is_visible = all(
+            0 <= x <= constants.SCREEN_WIDTH and
+            0 <= y <= constants.SCREEN_HEIGHT
+            for (x, y) in self.points
+        )
 
         if self.is_visible:
             for point in self.points:
                 if point[0] < 0:
-                    self.position.x += constants.SCREEN_WIDTH
+                    point[0] += constants.SCREEN_WIDTH
                 elif point[0] > constants.SCREEN_WIDTH:
-                    self.position.x -= constants.SCREEN_WIDTH
+                    point[0] -= constants.SCREEN_WIDTH
                 if point[1] < 0:
-                    self.position.y += constants.SCREEN_HEIGHT
+                    point[1] += constants.SCREEN_HEIGHT
                 elif point[1] > constants.SCREEN_HEIGHT:
-                    self.position.y -= constants.SCREEN_HEIGHT
+                    point[1] -= constants.SCREEN_HEIGHT
 
-        self.points = self.polygon()
-        
+            avg_x = sum(point[0] for point in self.points) / len(self.points)
+            avg_y = sum(point[1] for point in self.points) / len(self.points)
+            self.position = pygame.Vector2(avg_x, avg_y)
+            self.points = self.polygon()
+
     def split(self):
         self.kill()
         if (self.radius <= constants.ASTEROID_MIN_RADIUS):
