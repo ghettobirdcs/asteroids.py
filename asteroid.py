@@ -9,13 +9,13 @@ class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
         self.is_visible = False
+        self.num_sides = random.randint(5, 7)
         self.points = self.polygon()
 
     def polygon(self):
-        num_sides = random.randint(5, 7)
-        angle_step = (2 * math.pi) / num_sides
+        angle_step = (2 * math.pi) / self.num_sides
         points = []
-        for i in range(num_sides):
+        for i in range(self.num_sides):
             angle = i * angle_step
             x = self.position.x + math.cos(angle) * self.radius  # pyright: ignore
             y = self.position.y + math.sin(angle) * self.radius  # pyright: ignore
@@ -33,12 +33,23 @@ class Asteroid(CircleShape):
         
     def update(self, dt):
         self.position += self.velocity * dt
-        self.points = self.polygon()
 
-        self.is_visible = all(
-            0 <= x <= constants.SCREEN_WIDTH and 0 <= y <= constants.SCREEN_HEIGHT
-            for (x, y) in self.points
-        )
+        for point in self.points:
+            if 0 <= point[0] <= constants.SCREEN_WIDTH and 0 <= point[1] <= constants.SCREEN_HEIGHT:
+                self.is_visible = True
+
+        if self.is_visible:
+            for point in self.points:
+                if point[0] < 0:
+                    self.position.x += constants.SCREEN_WIDTH
+                elif point[0] > constants.SCREEN_WIDTH:
+                    self.position.x -= constants.SCREEN_WIDTH
+                if point[1] < 0:
+                    self.position.y += constants.SCREEN_HEIGHT
+                elif point[1] > constants.SCREEN_HEIGHT:
+                    self.position.y -= constants.SCREEN_HEIGHT
+
+        self.points = self.polygon()
         
     def split(self):
         self.kill()
