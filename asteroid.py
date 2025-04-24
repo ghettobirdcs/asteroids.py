@@ -12,14 +12,14 @@ class Asteroid(CircleShape):
         self.num_sides = random.randint(5, 7)
         self.points = self.polygon()
 
-    def polygon(self):
+    def polygon(self, offset=pygame.Vector2(0, 0)):
         angle_step = (2 * math.pi) / self.num_sides
         points = []
         for i in range(self.num_sides):
             angle = i * angle_step
-            x = self.position.x + math.cos(angle) * self.radius  # pyright: ignore
-            y = self.position.y + math.sin(angle) * self.radius  # pyright: ignore
-            points.append((x, y))  # pyright: ignore
+            # Use Vector2 for all calculations
+            vertex = self.position + pygame.Vector2(math.cos(angle), math.sin(angle)) * self.radius + offset  # pyright: ignore
+            points.append((vertex.x, vertex.y))  # Append as tuple (x, y)
         return points
 
     def draw(self, screen):
@@ -27,8 +27,7 @@ class Asteroid(CircleShape):
 
         if self.is_visible:
             for offset in self.offsets:
-                new_points = [point + offset for point in self.points]
-                pygame.draw.polygon(screen, "white", new_points, 2)  # pyright: ignore
+                pygame.draw.polygon(screen, "white", self.polygon(offset), 2)  # pyright: ignore
         
     def update(self, dt):
         self.position += self.velocity * dt
