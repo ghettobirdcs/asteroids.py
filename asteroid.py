@@ -27,34 +27,29 @@ class Asteroid(CircleShape):
 
         if self.is_visible:
             for offset in self.offsets:
-                new_points = [(x + offset[0], y + offset[1]) for (x, y) in self.points]
-                pygame.draw.polygon(screen, "white", new_points, 2)
+                new_points = [point + offset for point in self.points]
+                pygame.draw.polygon(screen, "white", new_points, 2)  # pyright: ignore
         
     def update(self, dt):
         self.position += self.velocity * dt
         self.points = self.polygon()
 
-        self.is_visible = all(
-            0 <= x <= constants.SCREEN_WIDTH and
-            0 <= y <= constants.SCREEN_HEIGHT
-            for (x, y) in self.points
-        )
+        if not self.is_visible:
+            self.is_visible = all(
+                0 <= x <= constants.SCREEN_WIDTH and
+                0 <= y <= constants.SCREEN_HEIGHT
+                for (x, y) in self.points
+            )
 
         if self.is_visible:
-            for point in self.points:
-                if point[0] < 0:
-                    point[0] += constants.SCREEN_WIDTH
-                elif point[0] > constants.SCREEN_WIDTH:
-                    point[0] -= constants.SCREEN_WIDTH
-                if point[1] < 0:
-                    point[1] += constants.SCREEN_HEIGHT
-                elif point[1] > constants.SCREEN_HEIGHT:
-                    point[1] -= constants.SCREEN_HEIGHT
-
-            avg_x = sum(point[0] for point in self.points) / len(self.points)
-            avg_y = sum(point[1] for point in self.points) / len(self.points)
-            self.position = pygame.Vector2(avg_x, avg_y)
-            self.points = self.polygon()
+            super().update(dt)
+            self.points = [
+                (
+                    (point[0] + self.velocity.x * dt) % constants.SCREEN_WIDTH,
+                    (point[1] + self.velocity.y * dt) % constants.SCREEN_HEIGHT
+                )
+                for point in self.points
+            ]
 
     def split(self):
         self.kill()
