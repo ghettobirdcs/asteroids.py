@@ -5,17 +5,19 @@ import random
 import math
 
 
+# TODO: Fix collision for polygons (asteroids)
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
         self.is_visible = False
-        self.num_sides = random.randint(5, 7)
-        self.uniform = random.uniform(0.8, 1.2)
-        # FIXME: jitter not working properly - currently unimplemented
-        self.jitter = pygame.Vector2(
-            random.uniform(-0.5 * self.radius, 0.5 * self.radius),
-            random.uniform(-0.5 * self.radius, 0.5 * self.radius)
-        )
+        self.num_sides = random.randint(7, 9)
+        self.vertex_offsets = [
+            random.uniform(0.8, 1.2) for _ in range(self.num_sides)
+        ]
+        self.vertex_jitter = [
+            pygame.Vector2(random.uniform(-5, 5), random.uniform(-5, 5))
+            for _ in range(self.num_sides)
+        ]
         self.points = self.polygon()
 
     def polygon(self, offset=pygame.Vector2(0, 0)):
@@ -23,10 +25,10 @@ class Asteroid(CircleShape):
         points = []
         for i in range(self.num_sides):
             angle = i * angle_step
-            random_radius = self.radius * self.uniform
-            # Use Vector2 for all calculations
-            vertex = self.position + pygame.Vector2(math.cos(angle), math.sin(angle)) * random_radius + offset  # pyright: ignore
+            random_radius = self.radius * self.vertex_offsets[i]
+            vertex = self.position + pygame.Vector2(math.cos(angle), math.sin(angle)) * random_radius + self.vertex_jitter[i] + offset  # pyright: ignore
             points.append((vertex.x, vertex.y))
+
         return points
 
     def draw(self, screen):
