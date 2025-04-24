@@ -9,25 +9,30 @@ class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
         self.is_visible = False
+        self.points = self.polygon()
 
-    def draw(self, screen):
-        num_sides = random.randint(5, 7)
-        angle_step = 2 * math.pi / num_sides
+    def polygon(self):
+        num_sides = random.randint(4, 6)
+        angle_step = (2 * math.pi) / num_sides
         points = []
-
         for i in range(num_sides):
             angle = i * angle_step
-            x = self.radius * math.cos(angle)
-            y = self.radius * math.sin(angle)
-            points.append((x, y))
+            jitter = random.uniform(0.8, 0.12)
+            radius = self.radius * jitter
+            x = self.position.x + math.cos(angle) * radius  # pyright: ignore
+            y = self.position.y + math.sin(angle) * radius  # pyright: ignore
+            points.append((x, y))  # pyright: ignore
+        return points
 
-        pygame.draw.polygon(screen, "white", points, 2)
-        # if self.is_visible:
-        #     new_points = []
-        #     for offset in self.offsets:
-        #         for point in points:
-        #             new_points.append(point + offset)
-        #         pygame.draw.polygon(screen, "white", new_points, 2)
+
+    def draw(self, screen):
+        translated = [(self.position.x + x, self.position.y + y) for (x, y) in self.points]  # pyright: ignore
+        pygame.draw.polygon(screen, "white", translated, 2)
+
+        if self.is_visible:
+            for offset in self.offsets:
+                new_points = [(x + offset[0], y + offset[1]) for (x, y) in self.points]
+                pygame.draw.polygon(screen, "white", new_points, 2)
 
         # WARN: WORKING CODE (CIRCLES):
         # pygame.draw.circle(screen, "white", self.position, self.radius, 2)
