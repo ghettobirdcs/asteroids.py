@@ -11,6 +11,11 @@ class Asteroid(CircleShape):
         self.is_visible = False
         self.num_sides = random.randint(5, 7)
         self.uniform = random.uniform(0.8, 1.2)
+        # FIXME: jitter not working properly - currently unimplemented
+        self.jitter = pygame.Vector2(
+            random.uniform(-0.5 * self.radius, 0.5 * self.radius),
+            random.uniform(-0.5 * self.radius, 0.5 * self.radius)
+        )
         self.points = self.polygon()
 
     def polygon(self, offset=pygame.Vector2(0, 0)):
