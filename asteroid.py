@@ -9,18 +9,16 @@ class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
         self.is_visible = False
+        self.num_sides = random.randint(5, 7)
         self.points = self.polygon()
 
     def polygon(self):
-        num_sides = random.randint(4, 6)
-        angle_step = (2 * math.pi) / num_sides
+        angle_step = (2 * math.pi) / self.num_sides
         points = []
-        for i in range(num_sides):
+        for i in range(self.num_sides):
             angle = i * angle_step
-            jitter = random.uniform(0.8, 0.12)
-            radius = self.radius * jitter
-            x = self.position.x + math.cos(angle) * radius  # pyright: ignore
-            y = self.position.y + math.sin(angle) * radius  # pyright: ignore
+            x = self.position.x + math.cos(angle) * self.radius  # pyright: ignore
+            y = self.position.y + math.sin(angle) * self.radius  # pyright: ignore
             points.append((x, y))  # pyright: ignore
         return points
 
@@ -52,6 +50,7 @@ class Asteroid(CircleShape):
             super().update(dt)
 
         self.position += self.velocity * dt
+        self.points = self.polygon()  # Regenerate points based on updated position
 
     def split(self):
         self.kill()
