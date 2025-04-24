@@ -4,8 +4,6 @@ import pygame
 import random
 import math
 
-
-# TODO: Fix collision for polygons (asteroids)
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
