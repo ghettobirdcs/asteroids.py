@@ -6,9 +6,25 @@ from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
 
-# TODO: Become briefly invulnerable when spawning in (flash playermodel)
+def draw_replay_screen(screen, score):
+    font = pygame.font.Font(None, 48)
+
+    """Draw the replay screen with game over text and score."""
+    screen.fill("black")  # Clear the screen once
+
+    # Draw "Game Over" text
+    text = font.render("Game Over! Press R to Replay", True, "white")
+    screen.blit(text, (constants.SCREEN_WIDTH // 2 - text.get_width() // 2,
+                       constants.SCREEN_HEIGHT // 2 - text.get_height() // 2))
+
+    # Draw score text
+    text_2 = font.render(f"SCORE: {int(score)}", True, (255, 255, 255))
+    screen.blit(text_2, (constants.SCREEN_WIDTH // 2 - text_2.get_width() // 2,
+                         constants.SCREEN_HEIGHT // 2 - text_2.get_height() // 2 - 40))
+
+    pygame.display.flip()  # Update the display after drawing everything
+
 # TODO: Add extra life icons to the screen and the ability to get more lives by increasing score
-# TODO: Get rid of the respawn screen and just immediately reset the game w/ player in the middle (invulnerable)
 def reset_game(updateable, drawable, asteroids, shots):
     """Reset the game state for replay."""
     updateable.empty()
@@ -53,6 +69,7 @@ def main():
     score_y = 32
 
     score = 0
+    score_rate = constants.SCORE_RATE  # Score increase per second
     game_over = False
     dead = False
 
@@ -61,18 +78,9 @@ def main():
             if event.type == pygame.QUIT:
                 return
 
-        # TODO: Make this code block into a function, to clean up the drawing of text
         if game_over:
             player.kill()
-            screen.fill("black")
-            font = pygame.font.Font(None, 48)
-            replay_text = font.render("Game Over! Press R to Replay", True, (255, 255, 255))
-            replay_text_2 = font.render(f"SCORE: {score}", True, (255, 255, 255))
-            screen.blit(replay_text, (constants.SCREEN_WIDTH // 2 - replay_text.get_width() // 2,
-                                      constants.SCREEN_HEIGHT // 2 - replay_text.get_height() // 2))
-            screen.blit(replay_text_2, (constants.SCREEN_WIDTH // 2 - replay_text_2.get_width() // 2,
-                                      constants.SCREEN_HEIGHT // 2 - replay_text_2.get_height() - 25))
-            pygame.display.flip()
+            draw_replay_screen(screen, score)
 
             # Wait for player to press "R" to replay
             keys = pygame.key.get_pressed()
@@ -89,17 +97,17 @@ def main():
 
             # Respawn the player
             player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
-            player.invulnerability_timer = 3.0  # pyright: ignore
+            player.invulnerability_timer = 2.0  # pyright: ignore
             dead = False
 
             continue
 
         screen.fill("black")
 
-        score_text = font.render(f"SCORE: {score}", True, "white")
+        score_text = font.render(f"SCORE: {int(score)}", True, "white")
         screen.blit(score_text, (score_x, score_y))
         # Score increases for staying alive
-        score += 1
+        score += score_rate * dt
 
         updateable.update(dt)
 
@@ -108,6 +116,7 @@ def main():
                 if extra_lives > 0:
                     extra_lives -= 1
                     dead = True
+                    score -= 15000
                 else:
                     game_over = True
 
@@ -116,7 +125,7 @@ def main():
                 if bullet.colliding(asteroid):
                     asteroid.split()
                     bullet.kill()
-                    score += 1000
+                    score += 750
 
         for sprite in drawable:
             sprite.draw(screen)
