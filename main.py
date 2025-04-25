@@ -6,6 +6,8 @@ from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
 
+# TODO: Become briefly invulnerable when spawning in (flashing?)
+# TODO: Add extra life icons to the screen
 def reset_game(updateable, drawable, asteroids, shots):
     """Reset the game state for replay."""
     updateable.empty()
@@ -38,8 +40,10 @@ def main():
     AsteroidField.containers = (updateable)  # pyright: ignore
     Shot.containers = (shots, drawable, updateable)  # pyright: ignore
 
-    player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
-    asteroid_field = AsteroidField()
+    player, asteroid_field = reset_game(updateable, drawable, asteroids, shots)
+
+    # Amount of extra lives to grant the player
+    extra_lives = constants.PLAYER_EXTRA_LIVES
 
     # Setup font to be used for displaying the score
     pygame.font.init()
@@ -49,13 +53,16 @@ def main():
 
     score = 0
     game_over = False
+    death_screen = False
 
     while (True):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
 
+        # TODO: Make this code block into a function, to clean up the drawing of text
         if game_over:
+            player.kill()
             screen.fill("black")
             font = pygame.font.Font(None, 48)
             replay_text = font.render("Game Over! Press R to Replay", True, (255, 255, 255))
@@ -72,7 +79,25 @@ def main():
                 # Reset game state
                 player, asteroid_field = reset_game(updateable, drawable, asteroids, shots)
                 score = 0
+                extra_lives = constants.PLAYER_EXTRA_LIVES
                 game_over = False
+            continue
+
+        if death_screen:
+            player.kill()
+            # Display death screen
+            screen.fill("black")
+            font = pygame.font.Font(None, 48)
+            death_text = font.render("You Died! Press SPACE to Respawn", True, (255, 255, 255))
+            screen.blit(death_text, (constants.SCREEN_WIDTH // 2 - death_text.get_width() // 2,
+                                     constants.SCREEN_HEIGHT // 2 - death_text.get_height() // 2))
+            pygame.display.flip()
+
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_SPACE]:
+                # Respawn the player
+                player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
+                death_screen = False
             continue
 
         screen.fill("black")
@@ -86,9 +111,12 @@ def main():
 
         for asteroid in asteroids:
             if asteroid.colliding(player):
-                # TODO: Add a way to replay, extra lives, score
-                print(f"Game Over!\nSCORE: {score}")
-                game_over = True
+                if asteroid.colliding(player):
+                    if extra_lives > 0:
+                        extra_lives -= 1
+                        death_screen = True
+                    else:
+                        game_over = True
 
         for asteroid in asteroids:
             for bullet in shots:
