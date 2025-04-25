@@ -30,6 +30,14 @@ def main():
     player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
     asteroid_field = AsteroidField()
 
+    # Setup font to be used for displaying the score
+    pygame.font.init()
+    font = pygame.font.Font(None, 32)
+    score_x = 32
+    score_y = 32
+
+    score = 0
+
     while (True):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -37,11 +45,18 @@ def main():
 
         screen.fill("black")
 
+        score_text = font.render(f"SCORE: {score}", True, "white")
+        screen.blit(score_text, (score_x, score_y))
+        # Score increases for staying alive
+        score += 1
+
         updateable.update(dt)
 
         for asteroid in asteroids:
             if asteroid.colliding(player):
-                print("Game Over!")
+                # TODO: Add a way to replay, extra lives, score
+                print(f"Game Over!\nSCORE: {score}")
+                pygame.time.wait(3000)
                 sys.exit()
 
         for asteroid in asteroids:
@@ -49,6 +64,7 @@ def main():
                 if bullet.colliding(asteroid):
                     asteroid.split()
                     bullet.kill()
+                    score += 1000
 
         for sprite in drawable:
             sprite.draw(screen)
