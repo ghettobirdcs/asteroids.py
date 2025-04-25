@@ -7,7 +7,8 @@ from asteroidfield import AsteroidField
 from shot import Shot
 
 # TODO: Become briefly invulnerable when spawning in (flash playermodel)
-# TODO: Add extra life icons to the screen
+# TODO: Add extra life icons to the screen and the ability to get more lives by increasing score
+# TODO: Get rid of the respawn screen and just immediately reset the game w/ player in the middle (invulnerable)
 def reset_game(updateable, drawable, asteroids, shots):
     """Reset the game state for replay."""
     updateable.empty()
@@ -53,7 +54,7 @@ def main():
 
     score = 0
     game_over = False
-    death_screen = False
+    dead = False
 
     while (True):
         for event in pygame.event.get():
@@ -83,21 +84,14 @@ def main():
                 game_over = False
             continue
 
-        if death_screen:
+        if dead:
             player.kill()
-            # Display death screen
-            screen.fill("black")
-            font = pygame.font.Font(None, 48)
-            death_text = font.render("You Died! Press SPACE to Respawn", True, (255, 255, 255))
-            screen.blit(death_text, (constants.SCREEN_WIDTH // 2 - death_text.get_width() // 2,
-                                     constants.SCREEN_HEIGHT // 2 - death_text.get_height() // 2))
-            pygame.display.flip()
 
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_SPACE]:
-                # Respawn the player
-                player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
-                death_screen = False
+            # Respawn the player
+            player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
+            player.invulnerability_timer = 3.0  # pyright: ignore
+            dead = False
+
             continue
 
         screen.fill("black")
@@ -110,18 +104,17 @@ def main():
         updateable.update(dt)
 
         for asteroid in asteroids:
-            if asteroid.colliding(player):
-                if asteroid.colliding(player):
-                    if extra_lives > 0:
-                        extra_lives -= 1
-                        death_screen = True
-                    else:
-                        game_over = True
+            if asteroid.colliding(player) and player.invulnerability_timer <= 0:
+                if extra_lives > 0:
+                    extra_lives -= 1
+                    dead = True
+                else:
+                    game_over = True
 
         for asteroid in asteroids:
             for bullet in shots:
                 if bullet.colliding(asteroid):
-                    asteroid.split(screen)
+                    asteroid.split()
                     bullet.kill()
                     score += 1000
 

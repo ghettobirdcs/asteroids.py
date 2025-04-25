@@ -10,6 +10,10 @@ class Player(CircleShape):
         self.rotation = 0
         self.timer = 0
         self.acceleration = 0
+        self.invulnerability_timer = 0
+        self.flash_timer = 0
+        self.flash_interval = 0.05
+        self.is_visible = True
 
     def triangle(self, offset):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -20,6 +24,18 @@ class Player(CircleShape):
         return [a, b, c]
 
     def draw(self, screen):
+        # Handle flashing during invulnerability
+        if self.invulnerability_timer > 0:
+            self.flash_timer += 1 / 60.0  # Assuming 60 FPS
+            if self.flash_timer >= self.flash_interval:
+                self.is_visible = not self.is_visible  # Toggle visibility
+                self.flash_timer = 0  # Reset flash timer
+
+            if not self.is_visible:
+                return  # Skip drawing the player
+        else:
+            self.is_visible = True  # Ensure visibility after invulnerability ends
+
         for offset in self.offsets:
             pygame.draw.polygon(screen, "white", self.triangle(offset), 2)  # pyright: ignore
 
@@ -43,6 +59,8 @@ class Player(CircleShape):
         # Decelerate the player when not pressing 'w' or 's' to move
         if not keys[pygame.K_w] and not keys[pygame.K_s]:
             self.move(dt, False)
+
+        self.invulnerability_timer -= 1 / 60.0
 
     def move(self, dt, accelerating=False):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)

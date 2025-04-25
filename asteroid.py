@@ -51,7 +51,7 @@ class Asteroid(CircleShape):
         if self.is_visible:
             super().update(dt)
 
-    def split(self, screen):
+    def split(self):
         self.explode()
         if (self.radius <= constants.ASTEROID_MIN_RADIUS):
             return
