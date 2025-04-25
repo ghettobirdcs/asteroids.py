@@ -1,4 +1,5 @@
 from circleshape import CircleShape
+from bit import Bit
 import constants
 import pygame
 import random
@@ -50,8 +51,8 @@ class Asteroid(CircleShape):
         if self.is_visible:
             super().update(dt)
 
-    def split(self):
-        self.kill()
+    def split(self, screen):
+        self.explode()
         if (self.radius <= constants.ASTEROID_MIN_RADIUS):
             return
         else:
@@ -67,3 +68,18 @@ class Asteroid(CircleShape):
             for vector in new_vectors:
                 asteroid = Asteroid(self.position.x, self.position.y, new_radius)  # pyright: ignore
                 asteroid.velocity = vector * 1.2
+
+    def explode(self):
+        self.kill()
+        # Spawn explosion effect
+        bit_count = random.randint(4, 5)
+        bit_angles = [random.uniform(0, 360) for _ in range(bit_count)]
+        bit_vectors = [
+            (self.velocity.rotate(-bit_angle),
+            self.velocity.rotate(bit_angle))
+            for bit_angle in bit_angles
+        ]
+
+        for vector, i in bit_vectors:
+            bit = Bit(self.position.x, self.position.y, 0.1)  # pyright: ignore
+            bit.velocity = vector * 2.5

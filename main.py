@@ -6,7 +6,7 @@ from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
 
-# TODO: Become briefly invulnerable when spawning in (flashing?)
+# TODO: Become briefly invulnerable when spawning in (flash playermodel)
 # TODO: Add extra life icons to the screen
 def reset_game(updateable, drawable, asteroids, shots):
     """Reset the game state for replay."""
@@ -67,10 +67,10 @@ def main():
             font = pygame.font.Font(None, 48)
             replay_text = font.render("Game Over! Press R to Replay", True, (255, 255, 255))
             replay_text_2 = font.render(f"SCORE: {score}", True, (255, 255, 255))
-            screen.blit(replay_text, (constants.SCREEN_WIDTH / 2 - replay_text.get_width() / 2,
-                                      constants.SCREEN_HEIGHT / 2 - replay_text.get_height() / 2))
-            screen.blit(replay_text_2, (constants.SCREEN_WIDTH / 2 - replay_text_2.get_width() / 2,
-                                      constants.SCREEN_HEIGHT / 2 - replay_text_2.get_height() - 25))
+            screen.blit(replay_text, (constants.SCREEN_WIDTH // 2 - replay_text.get_width() // 2,
+                                      constants.SCREEN_HEIGHT // 2 - replay_text.get_height() // 2))
+            screen.blit(replay_text_2, (constants.SCREEN_WIDTH // 2 - replay_text_2.get_width() // 2,
+                                      constants.SCREEN_HEIGHT // 2 - replay_text_2.get_height() - 25))
             pygame.display.flip()
 
             # Wait for player to press "R" to replay
@@ -121,7 +121,7 @@ def main():
         for asteroid in asteroids:
             for bullet in shots:
                 if bullet.colliding(asteroid):
-                    asteroid.split()
+                    asteroid.split(screen)
                     bullet.kill()
                     score += 1000
 
