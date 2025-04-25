@@ -6,6 +6,22 @@ from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
 
+# TODO: Add comments
+def draw_lives(screen, player, lives):
+    radius = player.radius // 2
+    for i in range(lives):
+        offset_x = 32 + i * (radius * 2 + 10)
+        offset_y = constants.SCREEN_HEIGHT - 40
+
+        forward = pygame.Vector2(0, -1)
+        right = pygame.Vector2(1, 0) * radius / 1.5
+
+        a = pygame.Vector2(offset_x, offset_y) + forward * radius
+        b = pygame.Vector2(offset_x, offset_y) - forward * radius - right
+        c = pygame.Vector2(offset_x, offset_y) - forward * radius + right
+
+        pygame.draw.polygon(screen, "green", [a, b, c])
+
 def draw_replay_screen(screen, score):
     font = pygame.font.Font(None, 48)
 
@@ -18,14 +34,12 @@ def draw_replay_screen(screen, score):
                        constants.SCREEN_HEIGHT // 2 - text.get_height() // 2))
 
     # Draw score text
-    text_2 = font.render(f"SCORE: {int(score)}", True, (255, 255, 255))
+    text_2 = font.render(f"SCORE: {score}", True, (255, 255, 255))
     screen.blit(text_2, (constants.SCREEN_WIDTH // 2 - text_2.get_width() // 2,
                          constants.SCREEN_HEIGHT // 2 - text_2.get_height() // 2 - 40))
 
     pygame.display.flip()  # Update the display after drawing everything
 
-# TODO: Add extra life icons to the screen and the ability to get more lives by increasing score
-# TODO: Add comments
 def reset_game(updateable, drawable, asteroids, shots):
     """Reset the game state for replay."""
     updateable.empty()
@@ -63,16 +77,16 @@ def main():
     # Amount of extra lives to grant the player
     extra_lives = constants.PLAYER_EXTRA_LIVES
 
-    # Setup font to be used for displaying the score
+    # Setup variables for displaying score and extra lives
     pygame.font.init()
     font = pygame.font.Font(None, 32)
+    score = 0
     score_x = 32
     score_y = 32
-
-    score = 0
-    score_rate = constants.SCORE_RATE  # Score increase per second
-    game_over = False
     dead = False
+    game_over = False
+    current_threshold = 0
+    score_rate = constants.SCORE_RATE  # Score increase per second
 
     while (True):
         for event in pygame.event.get():
@@ -105,10 +119,12 @@ def main():
 
         screen.fill("black")
 
-        score_text = font.render(f"SCORE: {int(score)}", True, "white")
+        score_text = font.render(f"SCORE: {score}", True, "white")
         screen.blit(score_text, (score_x, score_y))
         # Score increases for staying alive
-        score += score_rate * dt
+        score += int(score_rate * dt)
+
+        draw_lives(screen, player, extra_lives)
 
         updateable.update(dt)
 
@@ -127,6 +143,12 @@ def main():
                     asteroid.split()
                     bullet.kill()
                     score += 750
+
+        # Player gains extra lives for gaining score
+        new_threshold = score // constants.SCORE_THRESHOLD
+        if new_threshold > current_threshold:
+            extra_lives += 1
+            current_threshold = new_threshold
 
         for sprite in drawable:
             sprite.draw(screen)
