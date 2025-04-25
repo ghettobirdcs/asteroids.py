@@ -26,7 +26,7 @@ class Player(CircleShape):
     def draw(self, screen):
         # Handle flashing during invulnerability
         if self.invulnerability_timer > 0:
-            self.flash_timer += 1 / 60.0  # Assuming 60 FPS
+            self.flash_timer += 1 / constants.FPS
             if self.flash_timer >= self.flash_interval:
                 self.is_visible = not self.is_visible  # Toggle visibility
                 self.flash_timer = 0  # Reset flash timer
@@ -60,7 +60,7 @@ class Player(CircleShape):
         if not keys[pygame.K_w] and not keys[pygame.K_s]:
             self.move(dt, False)
 
-        self.invulnerability_timer -= 1 / 60.0
+        self.invulnerability_timer -= 1 / constants.FPS
 
     def move(self, dt, accelerating=False):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)

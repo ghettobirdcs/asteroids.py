@@ -1,4 +1,4 @@
-import sys
+# import sys
 import pygame
 import constants
 from player import Player
@@ -131,7 +131,7 @@ def main():
             sprite.draw(screen)
 
         pygame.display.flip()
-        dt = clock.tick(60) / 1000
+        dt = clock.tick(constants.FPS) / 1000
 
 
 if __name__ == "__main__":
