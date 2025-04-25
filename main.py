@@ -25,6 +25,7 @@ def draw_replay_screen(screen, score):
     pygame.display.flip()  # Update the display after drawing everything
 
 # TODO: Add extra life icons to the screen and the ability to get more lives by increasing score
+# TODO: Add comments
 def reset_game(updateable, drawable, asteroids, shots):
     """Reset the game state for replay."""
     updateable.empty()
@@ -97,7 +98,7 @@ def main():
 
             # Respawn the player
             player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
-            player.invulnerability_timer = 2.0  # pyright: ignore
+            player.invulnerability_timer = 2.5  # pyright: ignore
             dead = False
 
             continue

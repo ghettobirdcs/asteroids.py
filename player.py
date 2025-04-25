@@ -82,7 +82,13 @@ class Player(CircleShape):
 
     def shoot(self):
         if (self.timer <= 0):
-            shot = Shot(self.position.x, self.position.y)  # pyright: ignore
+            # Calculate position of the ship's nose
             forward = pygame.Vector2(0, 1).rotate(self.rotation)
+            tip_position = self.position + forward * self.radius
+
+            # Spawn bullet at that position
+            shot = Shot(tip_position.x, tip_position.y)  # pyright: ignore
             shot.velocity = forward * constants.PLAYER_SHOT_SPEED
+
+            # Reset shooting cooldown
             self.timer = constants.PLAYER_SHOOT_COOLDOWN
