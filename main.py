@@ -6,6 +6,17 @@ from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
 
+def reset_game(updateable, drawable, asteroids, shots):
+    """Reset the game state for replay."""
+    updateable.empty()
+    drawable.empty()
+    asteroids.empty()
+    shots.empty()
+
+    # Reinitialize player and asteroid field
+    player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
+    asteroid_field = AsteroidField()
+    return player, asteroid_field
 
 def main():
     print("Starting Asteroids!")
@@ -37,11 +48,32 @@ def main():
     score_y = 32
 
     score = 0
+    game_over = False
 
     while (True):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+
+        if game_over:
+            screen.fill("black")
+            font = pygame.font.Font(None, 48)
+            replay_text = font.render("Game Over! Press R to Replay", True, (255, 255, 255))
+            replay_text_2 = font.render(f"SCORE: {score}", True, (255, 255, 255))
+            screen.blit(replay_text, (constants.SCREEN_WIDTH / 2 - replay_text.get_width() / 2,
+                                      constants.SCREEN_HEIGHT / 2 - replay_text.get_height() / 2))
+            screen.blit(replay_text_2, (constants.SCREEN_WIDTH / 2 - replay_text_2.get_width() / 2,
+                                      constants.SCREEN_HEIGHT / 2 - replay_text_2.get_height() - 25))
+            pygame.display.flip()
+
+            # Wait for player to press "R" to replay
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_r]:
+                # Reset game state
+                player, asteroid_field = reset_game(updateable, drawable, asteroids, shots)
+                score = 0
+                game_over = False
+            continue
 
         screen.fill("black")
 
@@ -56,8 +88,7 @@ def main():
             if asteroid.colliding(player):
                 # TODO: Add a way to replay, extra lives, score
                 print(f"Game Over!\nSCORE: {score}")
-                pygame.time.wait(3000)
-                sys.exit()
+                game_over = True
 
         for asteroid in asteroids:
             for bullet in shots:
